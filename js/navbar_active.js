@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     // Get all section headings with IDs and navbar links
-    const sectionIds = ['Bio', 'Education', 'Project', 'Experience', 'Research', 'Technical_Skill', 'Miscellaneous'];
+    const sectionIds = ['Bio', 'Experience', 'Education', 'Project', 'Research', 'Technical_Skill', 'Miscellaneous'];
     const navLinks = document.querySelectorAll('.navbar a[href^="#"], .mobile-menu a[href^="#"]');
 
     // Function to remove active class from all links
@@ -51,6 +51,36 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
         
+        // Fallback: Check which section we're actually in based on scroll position
+        // This is important for when headers aren't visible (between sections)
+        // Find the section header that's closest to the top of the viewport but still visible
+        let closestSection = null;
+        let closestDistance = Infinity;
+        
+        for (let i = 0; i < sectionIds.length; i++) {
+            const sectionId = sectionIds[i];
+            const elementId = sectionId === 'Bio' ? 'Bio-header' : sectionId;
+            const element = document.getElementById(elementId);
+            
+            if (element) {
+                const rect = element.getBoundingClientRect();
+                // Check if header is above the middle of viewport
+                if (rect.top < window.innerHeight / 2) {
+                    // Calculate distance from the top - we want the one closest to top (most negative or smallest positive)
+                    const distance = Math.abs(rect.top - 100); // 100px is roughly navbar height + padding
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        closestSection = sectionId;
+                    }
+                }
+            }
+        }
+        
+        if (closestSection) {
+            setActiveLink(closestSection);
+            return;
+        }
+        
         // If no headers visible but sections are, use the last visible section
         if (visibleSections.size > 0) {
             const lastVisibleSection = sectionIds.filter(id => visibleSections.has(id)).pop();
@@ -79,41 +109,51 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Observer for section headers (h2 elements)
-    const headerObserver = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            const sectionId = entry.target.id;
-            if (entry.isIntersecting) {
-                visibleHeaders.add(sectionId);
-            } else {
-                visibleHeaders.delete(sectionId);
-            }
+    // Use different rootMargin for mobile vs desktop for better detection
+    const mobileBreakpoint = window.matchMedia('(max-width: 1024px)');
+    let headerObserver = null;
+
+    function createHeaderObserver(isMobile) {
+        if (headerObserver) {
+            headerObserver.disconnect();
+            visibleHeaders.clear();
+        }
+        headerObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                const sectionId = entry.target.id;
+                if (entry.isIntersecting) {
+                    visibleHeaders.add(sectionId);
+                } else {
+                    visibleHeaders.delete(sectionId);
+                }
+            });
+            determineActiveSection();
+        }, {
+            root: null,
+            rootMargin: isMobile ? '-60px 0px -40% 0px' : '-60px 0px -50% 0px',
+            threshold: 0
         });
-        determineActiveSection();
-    }, {
-        root: null,
-        rootMargin: '-60px 0px -80% 0px', // More strict: only visible in top 20% of viewport
-        threshold: 0
-    });
+
+        const bioHeader = document.getElementById('Bio-header');
+        if (bioHeader) headerObserver.observe(bioHeader);
+        sectionIds.slice(1).forEach(id => {
+            const header = document.getElementById(id);
+            if (header) headerObserver.observe(header);
+        });
+    }
+
+    createHeaderObserver(mobileBreakpoint.matches);
+
+    if (mobileBreakpoint.addEventListener) {
+        mobileBreakpoint.addEventListener('change', e => createHeaderObserver(e.matches));
+    } else {
+        mobileBreakpoint.addListener(e => createHeaderObserver(e.matches));
+    }
 
     // Observe all bottom indicators
     const bottomIndicators = document.querySelectorAll('.section-bottom-indicator');
     bottomIndicators.forEach(indicator => {
         bottomIndicatorObserver.observe(indicator);
-    });
-
-    // Observe all section headers
-    // For Bio, observe the name element instead of the entire table
-    const bioHeader = document.getElementById('Bio-header');
-    if (bioHeader) {
-        headerObserver.observe(bioHeader);
-    }
-    
-    // Observe h2 headers for other sections
-    sectionIds.slice(1).forEach(id => {
-        const header = document.getElementById(id);
-        if (header) {
-            headerObserver.observe(header);
-        }
     });
     
     // Add scroll listener for top of page detection
@@ -121,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function () {
     window.addEventListener('scroll', function() {
         clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(determineActiveSection, 50);
-    });
+    }, { passive: true });
 
     // Handle hash changes (when clicking links)
     window.addEventListener('hashchange', function() {
@@ -138,14 +178,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const href = this.getAttribute('href');
             if (href && href.startsWith('#')) {
                 const sectionId = href.substring(1);
-                console.log('Clicked section:', sectionId, 'Setting active...');
                 setActiveLink(sectionId);
-                
-                // Verify the class was added
-                setTimeout(() => {
-                    const activeLinks = document.querySelectorAll('.active-section');
-                    console.log('Active links after click:', activeLinks.length, Array.from(activeLinks).map(l => l.textContent));
-                }, 50);
             }
             
             // Blur after a short delay to prevent persistent highlighting on mobile

@@ -1,6 +1,9 @@
 {
-  "name": "Your Name",
-  "short_name": "Portfolio",
+  "name": "[Your Name]",
+  "short_name": "[Short Name]",
+  "description": "Portfolio of [Your Name] — [Your brief description, e.g., CS graduate, Software Engineer, and open-source contributor.]",
+  "start_url": "/",
+  "scope": "/",
   "icons": [
     {
       "src": "/images/android-chrome-192x192.png",
