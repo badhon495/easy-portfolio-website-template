@@ -730,20 +730,44 @@ If you want to minimize payload further:
 
 ### Quick Start
 
-```bash
-# 1. Fork this repository on GitHub
-# (Click the "Fork" button on the repository page)
+**Step 1 — Create your repository from this template**
 
-# 2. Clone your fork
-git clone https://github.com/your-username/your-username.github.io.git
+On this repository's GitHub page, click the green **"Use this template"** button → **"Create a new repository"**.
 
-# 3. Navigate into the project
-cd your-username.github.io
+> Do **not** click Fork. Forking links your repo to this one (showing "forked from" on your profile). Using the template creates a clean, independent repository.
 
-# 4. Start a local server (optional — requires Node.js)
-npx serve .
-# Or use the VS Code Live Server extension
+**Step 2 — Name your repository**
+
+Set the repository name to exactly:
 ```
+your-username.github.io
+```
+Replace `your-username` with your actual GitHub username (e.g. `john.github.io` if your username is `john`). This name is what makes GitHub Pages serve your site at `https://your-username.github.io`. Any other name will give you a `/repo-name` sub-path URL instead.
+
+Set visibility to **Public** (required for free GitHub Pages hosting), then click **"Create repository"**.
+
+**Step 3 — Clone your new repository**
+
+```bash
+git clone https://github.com/your-username/your-username.github.io.git
+cd your-username.github.io
+```
+
+**Step 4 — Customize your content**
+
+Edit the files with your personal information (see [Section 9 — Configuration Guide](#9-configuration-guide) for the full checklist).
+
+**Step 5 — Push your changes**
+
+```bash
+git add .
+git commit -m "Personalize portfolio content"
+git push
+```
+
+**Step 6 — Enable GitHub Pages**
+
+See [Section 10 — Deployment](#10-deployment) for the exact steps to turn on GitHub Pages and go live.
 
 ### Local Development
 
@@ -848,14 +872,61 @@ Generate favicon files for your own logo at [realfavicongenerator.net](https://r
 
 ### GitHub Pages (Recommended)
 
-1. Rename your repository to `your-username.github.io` (exactly, using your GitHub username).
-2. Go to **Settings → Pages**.
-3. Set **Source** to `Deploy from a branch`.
-4. Select **Branch: main**, **Folder: / (root)**.
-5. Click **Save**.
-6. Your site will be live at `https://your-username.github.io` within a few minutes.
+GitHub Pages is a free static hosting service built into GitHub. When your repository is named `your-username.github.io`, GitHub automatically serves it at `https://your-username.github.io` — no server, no cost, no build pipeline.
 
-**Note:** GitHub Pages automatically runs Jekyll, which processes the `permalink: /social` frontmatter in `social.html` to create the clean `/social` URL.
+#### Step 1 — Verify the repository name
+
+Go to your repository on GitHub. The name shown at the top must be exactly `your-username.github.io` (your real GitHub username, all lowercase). If it is named anything else, go to **Settings → General → Repository name** and rename it now. The URL will not work correctly without this.
+
+#### Step 2 — Enable GitHub Pages
+
+1. In your repository, click the **Settings** tab (top navigation bar).
+2. In the left sidebar, click **Pages** (under the "Code and automation" section).
+3. Under **"Build and deployment"**, set **Source** to **"Deploy from a branch"**.
+4. Under **Branch**, select **`main`** and set the folder to **`/ (root)`**.
+5. Click **Save**.
+
+GitHub will display a banner: *"GitHub Pages source saved."*
+
+#### Step 3 — Wait for deployment
+
+GitHub takes 1–3 minutes to build and deploy the site the first time. You can monitor the progress:
+
+- Go to the **Actions** tab of your repository.
+- You will see a workflow called **"pages build and deployment"** running.
+- Once the workflow shows a green checkmark, your site is live.
+
+#### Step 4 — Visit your site
+
+Open a browser and go to:
+```
+https://your-username.github.io
+```
+
+If you see a 404 page, wait another minute and refresh — the DNS update sometimes takes slightly longer on the first deploy.
+
+#### Step 5 — Verify the `/social` page
+
+Navigate to `https://your-username.github.io/social`. This clean URL works because GitHub Pages runs Jekyll automatically, and Jekyll processes the `permalink: /social` directive at the top of `social.html`. No extra configuration is needed.
+
+If `/social` returns a 404, double-check that the frontmatter block is present and unmodified at the very top of `social.html`:
+```yaml
+---
+permalink: /social
+---
+```
+
+#### After your first deploy
+
+Every time you push a commit to the `main` branch, GitHub automatically rebuilds and redeploys your site. Changes typically go live within 1–2 minutes of pushing.
+
+```bash
+# Make a change, then deploy it:
+git add .
+git commit -m "Update bio section"
+git push
+# Site updates automatically — no manual step needed
+```
 
 ### Netlify
 
