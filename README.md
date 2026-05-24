@@ -1,4 +1,4 @@
-# Academic Portfolio Template
+# Easy Portfolio Website Template
 
 A fast, clean, and fully responsive personal academic/developer portfolio template built with pure HTML, CSS, and a small amount of JavaScript. No build step, no framework, no dependencies to install — just static files served directly from GitHub Pages.
 
